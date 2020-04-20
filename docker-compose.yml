@@ -25,6 +25,18 @@ services:
             - ${HOST_ROOT}:${CONTAINER_ROOT}
         networks:
             - mapboxtest-net
+    mysql:
+        image: ${CURRENT_DB_IMG}
+        #command: --default-authentication-plugin=caching_sha2_password
+        ports:
+            - ${HOST_DB_PORT}:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: vapor
+            MYSQL_DATABASE: vapor
+            MYSQL_USER: vapor
+            MYSQL_PASSWORD: vapor
+        networks:
+            - mapboxtest-net
 
 networks:
     mapboxtest-net:

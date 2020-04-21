@@ -20,7 +20,7 @@ public func configure(_ app: Application) throws {
     case .production:
         print("Under production env")
         mysqlHost = Environment.get("MYSQL_HOST") ?? "127.0.0.1"
-        mysqlPort = 3306
+        mysqlPort = 33060
         mysqlDB = Environment.get("MYSQL_DB") ?? "vapor"
         mysqlUser = Environment.get("MYSQL_USER") ?? "vapor"
         mysqlPass = Environment.get("MYSQL_PASS") ?? "vapor"
@@ -31,7 +31,8 @@ public func configure(_ app: Application) throws {
                              port: mysqlPort,
                              username: mysqlUser,
                              password: mysqlPass,
-                             database: mysqlDB), as: .mysql)
+                             database: mysqlDB,
+                             tlsConfiguration: nil), as: .mysql)
     // add migrations
     try migrations(app)
     // register routes

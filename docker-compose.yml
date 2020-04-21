@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+    vapor:
+        build:
+            context: ./vapor
+        image: ${CURRENT_VAPOR_IMG}
+        ports:
+            - 8080:8080
+        volumes:
+            - ${HOST_ROOT}:${CONTAINER_ROOT}
+        working_dir: ${CONTAINER_ROOT}
+        tty: true
+        entrypoint: bash
+        networks:
+            - mapboxtest-net
+
+    nginx:
+        build:
+            context: ./nginx
+        image: ${CURRENT_NGINX_IMG}
+        ports:
+            - ${HOST_HTTP_PORT}:80
+        volumes:
+            - ${HOST_ROOT}:${CONTAINER_ROOT}
+        networks:
+            - mapboxtest-net
+    mysql:
+        image: ${CURRENT_DB_IMG}
+        #command: --default-authentication-plugin=caching_sha2_password
+        ports:
+            - ${HOST_DB_PORT}:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: vapor
+            MYSQL_DATABASE: vapor
+            MYSQL_USER: vapor
+            MYSQL_PASSWORD: vapor
+        networks:
+            - mapboxtest-net
+
+networks:
+    mapboxtest-net:
+        driver: bridge

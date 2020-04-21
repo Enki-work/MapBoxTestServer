@@ -16,6 +16,7 @@ struct CreateUser: Migration {
             .field(model.$mailAddress.key, .string, .required)
             .unique(on: model.$mailAddress.key)
             .field(model.$passWord.key, .string, .required)
+            .field(model.$token.key, .string, .required)
             .field(model.$createdAt.field.key, .datetime)
             .field(model.$updatedAt.field.key, .datetime)
             .create()

@@ -8,6 +8,11 @@
 import Vapor
 import Fluent
 
+final class BaseUser: Content {
+    var mailaddress: String
+    var password: String
+}
+
 final class User: Model, Content {
     static let schema = "users"
 
@@ -19,6 +24,9 @@ final class User: Model, Content {
     
     @Field(key: "passWord")
     var passWord: String
+    
+    @Field(key: "token")
+    var token: String?
 
     @Timestamp(key: "createdAt", on: .create)
     var createdAt: Date?
@@ -31,5 +39,7 @@ final class User: Model, Content {
     init(mailAddress: String, passWord: String) {
         self.mailAddress = mailAddress
         self.passWord = passWord
+        //TODO:仮token
+        self.token = mailAddress + passWord
     }
 }

@@ -8,9 +8,9 @@
 import Fluent
 
 struct CreateUser: Migration {
-    let model = User()
 
     func prepare(on database: Database) -> EventLoopFuture<Void> {
+        let model = User()
         return database.schema(User.schema)
             .id()
             .field(model.$mailAddress.key, .string, .required)

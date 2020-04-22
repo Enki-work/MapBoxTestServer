@@ -9,8 +9,8 @@ import Vapor
 import Fluent
 
 final class BaseUser: Content {
-    var mailaddress: String
-    var password: String
+    var mailAddress: String
+    var passWord: String
 }
 
 final class User: Model, Content {

@@ -1,0 +1,4 @@
+module CURLParser {
+    umbrella "/Users/yanqi/Desktop/MapBoxTestServer/vapor/MapBoxTestVapor/.build/checkouts/vapor/Sources/CURLParser/include"
+    export *
+}

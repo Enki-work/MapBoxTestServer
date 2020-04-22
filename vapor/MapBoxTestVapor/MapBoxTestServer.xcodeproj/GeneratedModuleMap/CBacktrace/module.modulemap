@@ -1,0 +1,4 @@
+module CBacktrace {
+    umbrella "/Users/yanqi/Desktop/MapBoxTestServer/vapor/MapBoxTestVapor/.build/checkouts/swift-backtrace/Sources/CBacktrace/include"
+    export *
+}

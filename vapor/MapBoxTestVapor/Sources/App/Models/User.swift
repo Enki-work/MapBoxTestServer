@@ -34,11 +34,17 @@ final class User: Model, Content {
     @Timestamp(key: "updatedAt", on: .update)
     var updatedAt: Date?
     
+    @Siblings(through: UserGourp.self, from: \.$user, to: \.$group)
+    var group: [Group]
+    
     init() {}
     
-    init(mailAddress: String, passWord: String) {
+    init(mailAddress: String,
+         passWord: String,
+         groupId: UUID? = nil) {
         self.mailAddress = mailAddress
         self.passWord = passWord
+//        self.$group.id = userID
         //TODO:仮token
         self.token = mailAddress + passWord
     }

@@ -11,6 +11,8 @@ import Vapor
 func migrations(_ app: Application) throws {
     // MARK: User
     app.migrations.add(CreateUser())
+    app.migrations.add(CreateGroup())
+    app.migrations.add(CreateUserGroup())
     
     switch app.environment {
     case .development, .testing:

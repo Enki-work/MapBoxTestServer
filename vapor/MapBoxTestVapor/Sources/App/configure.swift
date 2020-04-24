@@ -15,7 +15,7 @@ public func configure(_ app: Application) throws {
     
     switch app.environment {
     case .development, .testing:
-        app.http.server.configuration.port = 8080
+        app.http.server.configuration.port = 8083
         app.http.server.configuration.hostname = "0.0.0.0"
     case .production:
         print("Under production env")

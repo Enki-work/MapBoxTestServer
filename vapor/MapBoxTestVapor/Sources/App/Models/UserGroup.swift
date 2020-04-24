@@ -7,7 +7,7 @@
 
 import Vapor
 import Fluent
-final class UserGourp: Model, Content {
+final class UserGroup: Model, Content {
     static let schema = "usergroups"
 
     @ID(key: .id)

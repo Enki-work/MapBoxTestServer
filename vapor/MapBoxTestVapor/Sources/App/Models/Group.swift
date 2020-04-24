@@ -22,8 +22,8 @@ final class Group: Model, Content {
     @Timestamp(key: "updatedAt", on: .update)
     var updatedAt: Date?
 
-    @Siblings(through: UserGourp.self, from: \.$group, to: \.$user)
-    var owners: [User]
+    @Siblings(through: UserGroup.self, from: \.$group, to: \.$user)
+    var users: [User]
 
     init() { }
 

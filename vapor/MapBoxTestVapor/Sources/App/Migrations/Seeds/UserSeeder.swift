@@ -16,6 +16,6 @@ struct UserSeeder: Migration {
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return Ureturn User.query(on: database).delete()
+        return User.query(on: database).delete()
     }
 }

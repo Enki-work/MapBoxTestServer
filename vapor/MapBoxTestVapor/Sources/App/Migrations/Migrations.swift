@@ -17,6 +17,10 @@ func migrations(_ app: Application) throws {
     switch app.environment {
     case .development, .testing:
         app.migrations.add(UserSeeder())
+        app.migrations.add(GroupSeeder())
+        app.migrations.add(UserGroupSeeder())
+        
+        
     default:
         break
     }

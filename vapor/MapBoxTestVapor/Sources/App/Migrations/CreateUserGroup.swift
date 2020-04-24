@@ -10,11 +10,11 @@ import Fluent
 struct CreateUserGroup: Migration {
 
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        let model = UserGourp()
-        return database.schema(UserGourp.schema)
+        let model = UserGroup()
+        return database.schema(UserGroup.schema)
             .id()
-            .field(.string(model.$user.name), .string, .required)
-            .field(.string(model.$group.name), .string, .required)
+            .field("userID", .string, .required)
+            .field("groupID", .string, .required)
             .field(model.$createdAt.field.key, .datetime)
             .field(model.$updatedAt.field.key, .datetime)
             .create()

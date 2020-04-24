@@ -22,4 +22,3 @@ struct GroupSeeder: Migration {
         return Group.query(on: database).delete()
     }
 }
-

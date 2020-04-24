@@ -34,7 +34,7 @@ final class User: Model, Content {
     @Timestamp(key: "updatedAt", on: .update)
     var updatedAt: Date?
     
-    @Siblings(through: UserGourp.self, from: \.$user, to: \.$group)
+    @Siblings(through: UserGroup.self, from: \.$user, to: \.$group)
     var group: [Group]
     
     init() {}

@@ -21,7 +21,6 @@ struct UserGroupSeeder: Migration {
                         usergroups.append(UserGroup(userID: userid, groupID: groupid))
                     }
                 }
-                print("#######\(usergroups)")
                 return usergroups.map{$0.save(on: database)}.flatten(on: database.eventLoop)
         }
     }

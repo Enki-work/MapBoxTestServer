@@ -13,13 +13,14 @@ func migrations(_ app: Application) throws {
     app.migrations.add(CreateUser())
     app.migrations.add(CreateGroup())
     app.migrations.add(CreateUserGroup())
+    app.migrations.add(CreateLoaction())
     
     switch app.environment {
     case .development, .testing:
         app.migrations.add(UserSeeder())
         app.migrations.add(GroupSeeder())
         app.migrations.add(UserGroupSeeder())
-        
+        app.migrations.add(LocationSeeder())
         
     default:
         break

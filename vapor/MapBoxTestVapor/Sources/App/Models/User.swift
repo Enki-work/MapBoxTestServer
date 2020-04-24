@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class BaseUser: Content {
+final class UserRequest: Content {
     var mailAddress: String
     var passWord: String
 }

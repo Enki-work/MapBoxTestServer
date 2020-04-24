@@ -7,6 +7,11 @@
 
 import Vapor
 import Fluent
+
+final class GroupRequest: Content {
+    var token: String
+}
+
 final class Group: Model, Content {
     static let schema = "groups"
 

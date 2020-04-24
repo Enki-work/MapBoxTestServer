@@ -10,7 +10,7 @@ import Fluent
 
 struct UserController {
     func login(req: Request) throws -> EventLoopFuture<Response> {
-        let user = try req.content.decode(BaseUser.self)
+        let user = try req.content.decode(UserRequest.self)
         return User.query(on: req.db)
             .filter(\.$mailAddress, .equal, user.mailAddress)
             .filter(\.$passWord, .equal, user.passWord).first()
@@ -24,7 +24,7 @@ struct UserController {
     }
 
     func register(req: Request) throws -> EventLoopFuture<Response> {
-        let user = try req.content.decode(BaseUser.self)
+        let user = try req.content.decode(UserRequest.self)
         return _get(mailAddress: user.mailAddress, on: req.db)
             .isNil(or: Abort(.preconditionFailed, reason: "Username already taken"))
             .flatMap { _ in

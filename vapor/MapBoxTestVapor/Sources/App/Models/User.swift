@@ -35,7 +35,10 @@ final class User: Model, Content {
     var updatedAt: Date?
     
     @Siblings(through: UserGroup.self, from: \.$user, to: \.$group)
-    var group: [Group]
+    var groups: [Group]
+
+    @Children(for: \.$user)
+    var locations: [Location]
     
     init() {}
     

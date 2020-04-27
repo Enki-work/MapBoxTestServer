@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by YanQi on 2020/04/24.
 //
@@ -16,9 +16,6 @@ struct GroupController {
             .unwrap(or: Abort(.notFound, reason: "illegal User"))
             .flatMap {
                 $0.$groups.query(on: req.db).all().encodeResponse(status: .ok, for: req)
-            }.flatMapError { (error) -> EventLoopFuture<Response> in
-                MBTError.init(errorCode: HTTPResponseStatus.forbidden.code,
-                              message: error.localizedDescription).encodeResponse(status: .ok, for: req)
         }
     }
 }

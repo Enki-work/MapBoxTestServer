@@ -21,15 +21,6 @@ struct GroupController {
                               message: error.localizedDescription).encodeResponse(status: .ok, for: req)
         }
     }
-
-    private func _get(
-        mailAddress: String,
-        on database: Database
-    ) -> EventLoopFuture<User?> {
-        User.query(on: database)
-            .filter(\.$mailAddress, .equal, mailAddress)
-            .first()
-    }
 }
 
 extension GroupController: RouteCollection {

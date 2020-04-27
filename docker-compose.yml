@@ -35,6 +35,8 @@ services:
             MYSQL_DATABASE: vapor
             MYSQL_USER: vapor
             MYSQL_PASSWORD: vapor
+        volumes:
+            - ${HOST_MYSQL}:${CONTAINER_MYSQL}
         networks:
             - mapboxtest-net
 

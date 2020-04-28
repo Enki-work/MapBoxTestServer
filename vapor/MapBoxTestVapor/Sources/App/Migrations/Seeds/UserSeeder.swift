@@ -16,8 +16,6 @@ struct UserSeeder: Migration {
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return User.query(on: database)
-            .filter(\.$mailAddress, .equal, model.mailAddress).first()
-            .map{ $0?.delete(on: database) }.transform(to: ())
+        return User.query(on: database).delete()
     }
 }

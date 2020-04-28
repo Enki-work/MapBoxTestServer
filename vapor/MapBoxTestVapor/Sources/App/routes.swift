@@ -17,8 +17,13 @@ func routes(_ app: Application) throws {
     
     // MARK: Controllers
     let userController = UserController()
+    let groupcontroller = GroupController()
+    let locationController = LocationController()
 
     // MARK: Routes
     let apiRoutes = app.grouped("api")
     try apiRoutes.grouped("users").register(collection: userController)
+    try apiRoutes.grouped("groups").register(collection: groupcontroller)
+    try apiRoutes.grouped("locations").register(collection: locationController)
+    
 }

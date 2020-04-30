@@ -24,6 +24,9 @@ final class User: Model, Content {
     
     @Field(key: "passWord")
     var passWord: String
+
+    @Field(key: "name")
+    var name: String
     
     @Field(key: "token")
     var token: String?
@@ -47,7 +50,8 @@ final class User: Model, Content {
          groupId: UUID? = nil) {
         self.mailAddress = mailAddress
         self.passWord = passWord
-//        self.$group.id = userID
+        //TODO:　仮name
+        self.name = String(mailAddress.split(separator: "@").first ?? "")
         //TODO:仮token
         self.token = mailAddress + passWord
     }

@@ -15,8 +15,23 @@ struct UserController {
             .filter(\.$mailAddress, .equal, user.mailAddress)
             .filter(\.$passWord, .equal, user.passWord).first()
             .unwrap(or: Abort(.forbidden, reason: "username or password incorrect"))
-            .flatMap {
-                $0.encodeResponse(status: .ok, for: req)
+            .flatMap { (user) -> EventLoopFuture<Response> in
+                user.createToken().update(on: req.db).flatMap {
+                    user.encodeResponse(status: .ok, for: req)
+                }
+        }
+    }
+
+    func logout(req: Request) throws -> EventLoopFuture<Response> {
+        let queryToken: String? = req.query["token"]
+        guard let token = queryToken else {
+            throw Abort(.notFound, reason: "illegal token")
+        }
+        return User.query(on: req.db)
+            .filter(\.$token, .equal, token).first()
+            .unwrap(or: Abort(.notFound, reason: "illegal User"))
+            .flatMap { (user) -> EventLoopFuture<Response> in
+                user.removeToken().update(on: req.db).transform(to: Response(status: .ok))
         }
     }
 }
@@ -44,6 +59,7 @@ private func _get(
 extension UserController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         routes.post("login", use: login)
+        routes.post("logout", use: logout)
         routes.post("register", use: register)
     }
 }

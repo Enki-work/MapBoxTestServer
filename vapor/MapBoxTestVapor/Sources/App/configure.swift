@@ -15,7 +15,6 @@ public func configure(_ app: Application) throws {
     switch app.environment {
     case .development, .testing:
         app.logger.info("development, testing env")
-        app.logger.info("mysqlHost:\(mysqlHost) mysqlPort:\(mysqlPort)--- \(Environment.get("MYSQL_HOST")!)")
         app.http.server.configuration.port = 8080
         app.http.server.configuration.hostname = "0.0.0.0"
     case .production:

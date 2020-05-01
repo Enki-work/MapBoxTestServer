@@ -1,12 +1,20 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by YanQi on 2020/04/24.
 //
 
 import Vapor
 import Fluent
+
+final class LocationRequest: Content {
+    var latitude: Double
+    var longitude: Double
+    var userIDStr: String?
+    var token: String
+}
+
 final class Location: Model, Content {
     static let schema = "locations"
 
@@ -35,6 +43,14 @@ final class Location: Model, Content {
     init(id: UUID? = nil, latitude: Double, longitude: Double, userID: UUID) {
         self.id = id
         self.$user.id = userID
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+
+    init(latitude: Double, longitude: Double, userIDStr: String) {
+        if let userID = UUID.init(uuidString: userIDStr) {
+            self.$user.id = userID
+        }
         self.latitude = latitude
         self.longitude = longitude
     }

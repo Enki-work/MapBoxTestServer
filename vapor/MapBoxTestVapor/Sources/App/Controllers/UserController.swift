@@ -25,11 +25,11 @@ struct UserController {
     func logout(req: Request) throws -> EventLoopFuture<Response> {
         let queryToken: String? = req.query["token"]
         guard let token = queryToken else {
-            throw Abort(.notFound, reason: "illegal token")
+            throw Abort(.lengthRequired, reason: "illegal token")
         }
         return User.query(on: req.db)
             .filter(\.$token, .equal, token).first()
-            .unwrap(or: Abort(.notFound, reason: "illegal User"))
+            .unwrap(or: Abort(.unauthorized, reason: "illegal User"))
             .flatMap { (user) -> EventLoopFuture<Response> in
                 user.removeToken().update(on: req.db).transform(to: Response(status: .ok))
         }

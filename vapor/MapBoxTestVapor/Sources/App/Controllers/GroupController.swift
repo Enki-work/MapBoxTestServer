@@ -12,7 +12,7 @@ struct GroupController {
     func get(req: Request) throws -> EventLoopFuture<Response> {
         let queryToken: String? = req.query["token"]
         guard let token = queryToken else {
-            throw Abort(.notFound, reason: "illegal token")
+            throw Abort(.unauthorized, reason: "illegal token")
         }
         return User.query(on: req.db)
             .filter(\.$token, .equal, token).first()

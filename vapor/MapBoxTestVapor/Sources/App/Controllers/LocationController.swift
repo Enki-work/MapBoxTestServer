@@ -12,7 +12,7 @@ struct LocationController {
     func getUserLocation(req: Request) throws -> EventLoopFuture<Response> {
         let queryToken: String? = req.query["token"]
         guard let token = queryToken else {
-            throw Abort(.notFound, reason: "illegal token")
+            throw Abort(.unauthorized, reason: "illegal token")
         }
         return User.query(on: req.db)
             .filter(\.$token, .equal, token).first()
@@ -25,7 +25,7 @@ struct LocationController {
     func getUserGroupLocation(req: Request) throws -> EventLoopFuture<Response> {
         let queryToken: String? = req.query["token"]
         guard let token = queryToken else {
-            throw Abort(.notFound, reason: "illegal token")
+            throw Abort(.unauthorized, reason: "illegal token")
         }
 
         return User.query(on: req.db)
@@ -61,7 +61,7 @@ struct LocationController {
                 }.map({ (locations) -> ([Location]) in
                     var filtedLocation: [Location] = []
                     for location in locations {
-                        if filtedLocation.contains(where: {$0.id == location.id}) {
+                        if filtedLocation.contains(where: { $0.id == location.id }) {
                             continue
                         } else {
                             filtedLocation.append(location)
@@ -71,11 +71,32 @@ struct LocationController {
                 }).encodeResponse(status: .ok, for: req)
         }
     }
+
+    func upload(req: Request) throws -> EventLoopFuture<Response> {
+        let location = try req.content.decode(LocationRequest.self)
+        return User.query(on: req.db)
+            .filter(\.$token, .equal, location.token).first()
+            .unwrap(or: Abort(.unauthorized, reason: "illegal User"))
+            .flatMap {user in
+                if let userIdStr = location.userIDStr {
+                    return Location(latitude: location.latitude,
+                             longitude: location.longitude,
+                             userIDStr: userIdStr).save(on: req.db)
+                        .transform(to: Response(status: .ok))
+                } else {
+                    return Location(latitude: location.latitude,
+                                    longitude: location.longitude,
+                                    userID: user.id!).save(on: req.db)
+                        .transform(to: Response(status: .ok))
+                }
+        }
+    }
 }
 
 extension LocationController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         routes.get("user", use: getUserLocation)
         routes.get("userGroup", use: getUserGroupLocation)
+        routes.post("user", use: upload)
     }
 }

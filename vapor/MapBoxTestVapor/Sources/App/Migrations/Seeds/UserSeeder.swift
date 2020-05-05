@@ -10,8 +10,8 @@ import Vapor
 
 struct UserSeeder: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        [User(mailAddress: "mapbox@123.com", passWord: "mapbox"),
-           User(mailAddress: "mapbox2@123.com", passWord: "mapbox")]
+        [User(mailAddress: "mapbox@123.com", passWord: "mapbox", isAdmin: true),
+           User(mailAddress: "mapbox2@123.com", passWord: "mapbox", isAdmin: true)]
         .map({ $0.save(on: database).transform(to: ()) })
         .flatten(on: database.eventLoop)
     }

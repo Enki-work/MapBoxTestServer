@@ -51,7 +51,10 @@ struct LocationController {
                 }
             }.flatMap { (users) -> EventLoopFuture<Response> in
                 var resp = [EventLoopFuture<Location>]()
+                var userIDs: [UUID] = []
                 for user in users {
+                    guard let userID = user.id, !userIDs.contains(userID) else {continue}
+                    userIDs.append(userID)
                     let locationq = user.$locations.query(on: req.db).sort(\.$updatedAt, .descending).first()
                         .unwrap(or: MBTError.init(errorCode: HTTPResponseStatus.notFound.code, message: "Location is nil"))
                     resp.append(locationq)

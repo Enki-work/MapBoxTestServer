@@ -18,7 +18,10 @@ struct LocationController {
             .filter(\.$token, .equal, token).first()
             .unwrap(or: Abort(.notFound, reason: "illegal User"))
             .flatMap {
-                $0.$locations.query(on: req.db).all().encodeResponse(status: .ok, for: req)
+                $0.$locations.query(on: req.db).sort(\.$updatedAt, .descending).first().map({ (location) -> ([Location]) in
+                    guard let location = location else { return [] }
+                    return [location]
+                }).encodeResponse(status: .ok, for: req)
         }
     }
 
@@ -47,28 +50,13 @@ struct LocationController {
                     return userlist
                 }
             }.flatMap { (users) -> EventLoopFuture<Response> in
-                var resp = [EventLoopFuture<[Location]>]()
+                var resp = [EventLoopFuture<Location>]()
                 for user in users {
-                    let locationq = user.$locations.query(on: req.db).all()
+                    let locationq = user.$locations.query(on: req.db).sort(\.$updatedAt, .descending).first()
+                        .unwrap(or: MBTError.init(errorCode: HTTPResponseStatus.notFound.code, message: "Location is nil"))
                     resp.append(locationq)
                 }
-                return resp.flatten(on: req.eventLoop).map { (locationsList) -> [Location] in
-                    var locationlist: [Location] = []
-                    for locations in locationsList {
-                        locationlist.append(contentsOf: locations)
-                    }
-                    return locationlist
-                }.map({ (locations) -> ([Location]) in
-                    var filtedLocation: [Location] = []
-                    for location in locations {
-                        if filtedLocation.contains(where: { $0.id == location.id }) {
-                            continue
-                        } else {
-                            filtedLocation.append(location)
-                        }
-                    }
-                    return filtedLocation
-                }).encodeResponse(status: .ok, for: req)
+                return resp.flatten(on: req.eventLoop).encodeResponse(status: .ok, for: req)
         }
     }
 
@@ -77,11 +65,11 @@ struct LocationController {
         return User.query(on: req.db)
             .filter(\.$token, .equal, location.token).first()
             .unwrap(or: Abort(.unauthorized, reason: "illegal User"))
-            .flatMap {user in
+            .flatMap { user in
                 if let userIdStr = location.userIDStr {
                     return Location(latitude: location.latitude,
-                             longitude: location.longitude,
-                             userIDStr: userIdStr).save(on: req.db)
+                                    longitude: location.longitude,
+                                    userIDStr: userIdStr).save(on: req.db)
                         .transform(to: Response(status: .ok))
                 } else {
                     return Location(latitude: location.latitude,

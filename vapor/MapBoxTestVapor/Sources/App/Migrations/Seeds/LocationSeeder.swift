@@ -14,14 +14,14 @@ struct LocationSeeder: Migration {
         User.query(on: database).all().flatMap({ (users) -> EventLoopFuture<Void> in
             var locations: [Location] = []
             if let userId = users.first?.id {
-                locations.append(contentsOf: [Location.init(latitude: 35.495236, longitude: 139.602820, userID: userId),
-                                 Location.init(latitude: 35.498177, longitude: 139.599793, userID: userId),
-                                 Location.init(latitude: 35.428308, longitude: 139.637553, userID: userId)])
+                locations.append(contentsOf: [Location.init(latitude: 35.495236, longitude: 139.602820, userID: userId, userName: users.first?.name),
+                                 Location.init(latitude: 35.498177, longitude: 139.599793, userID: userId, userName: users.first?.name),
+                                 Location.init(latitude: 35.428308, longitude: 139.637553, userID: userId, userName: users.first?.name)])
             }
             
             if let userId = users[1].id {
-                locations.append(contentsOf: [Location.init(latitude: 35.595236, longitude: 139.602820, userID: userId),
-                                 Location.init(latitude: 35.598177, longitude: 139.599793, userID: userId)])
+                locations.append(contentsOf: [Location.init(latitude: 35.595236, longitude: 139.602820, userID: userId, userName: users[1].name),
+                                 Location.init(latitude: 35.598177, longitude: 139.599793, userID: userId, userName: users[1].name)])
             }
             return locations.map { $0.save(on: database) }.flatten(on: database.eventLoop)
         })

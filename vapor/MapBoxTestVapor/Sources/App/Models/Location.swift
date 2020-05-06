@@ -33,25 +33,28 @@ final class Location: Model, Content {
     @Timestamp(key: "updatedAt", on: .update)
     var updatedAt: Date?
 
-//    @Siblings(through: UserGroup.self, from: \.$group, to: \.$user)
-//    var users: [User]
+    @Field(key: "userName")
+    var userName: String?
+    
     @Parent(key: "userID")
     var user: User
 
     init() { }
 
-    init(id: UUID? = nil, latitude: Double, longitude: Double, userID: UUID) {
+    init(id: UUID? = nil, latitude: Double, longitude: Double, userID: UUID, userName: String? = nil) {
         self.id = id
         self.$user.id = userID
         self.latitude = latitude
         self.longitude = longitude
+        self.userName = userName
     }
 
-    init(latitude: Double, longitude: Double, userIDStr: String) {
+    init(latitude: Double, longitude: Double, userIDStr: String, userName: String? = nil) {
         if let userID = UUID.init(uuidString: userIDStr) {
             self.$user.id = userID
         }
         self.latitude = latitude
         self.longitude = longitude
+        self.userName = userName
     }
 }

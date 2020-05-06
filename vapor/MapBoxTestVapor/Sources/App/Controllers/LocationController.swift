@@ -27,6 +27,7 @@ struct LocationController {
 
     func getUserGroupLocation(req: Request) throws -> EventLoopFuture<Response> {
         let queryToken: String? = req.query["token"]
+        let groupIdStr: String? = req.query["groupId"]
         guard let token = queryToken else {
             throw Abort(.unauthorized, reason: "illegal token")
         }
@@ -35,7 +36,11 @@ struct LocationController {
             .filter(\.$token, .equal, token).first()
             .unwrap(or: Abort(.notFound, reason: "illegal User"))
             .flatMap { (user) -> EventLoopFuture<[Group]> in
-                user.$groups.query(on: req.db).all()
+                var queryGroup = user.$groups.query(on: req.db)
+                if let groupIdStr = groupIdStr, let groupId = UUID(uuidString: groupIdStr) {
+                    queryGroup = queryGroup.filter(\.$id, .equal, groupId)
+                }
+                return queryGroup.all()
             }.flatMap { (groups) -> EventLoopFuture<[User]> in
                 var resp = [EventLoopFuture<[User]>]()
                 for group in groups {
@@ -72,12 +77,12 @@ struct LocationController {
                 if let userIdStr = location.userIDStr {
                     return Location(latitude: location.latitude,
                                     longitude: location.longitude,
-                                    userIDStr: userIdStr).save(on: req.db)
+                                    userIDStr: userIdStr, userName: user.name).save(on: req.db)
                         .transform(to: Response(status: .ok))
                 } else {
                     return Location(latitude: location.latitude,
                                     longitude: location.longitude,
-                                    userID: user.id!).save(on: req.db)
+                                    userID: user.id!, userName: user.name).save(on: req.db)
                         .transform(to: Response(status: .ok))
                 }
         }

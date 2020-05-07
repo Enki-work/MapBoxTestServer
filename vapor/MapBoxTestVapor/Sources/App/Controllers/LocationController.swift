@@ -12,27 +12,35 @@ struct LocationController {
     func getUserLocation(req: Request) throws -> EventLoopFuture<Response> {
         let queryToken: String? = req.query["token"]
         guard let token = queryToken else {
-            throw Abort(.notFound, reason: "illegal token")
+            throw Abort(.unauthorized, reason: "illegal token")
         }
         return User.query(on: req.db)
             .filter(\.$token, .equal, token).first()
             .unwrap(or: Abort(.notFound, reason: "illegal User"))
             .flatMap {
-                $0.$locations.query(on: req.db).all().encodeResponse(status: .ok, for: req)
+                $0.$locations.query(on: req.db).sort(\.$updatedAt, .descending).first().map({ (location) -> ([Location]) in
+                    guard let location = location else { return [] }
+                    return [location]
+                }).encodeResponse(status: .ok, for: req)
         }
     }
 
     func getUserGroupLocation(req: Request) throws -> EventLoopFuture<Response> {
         let queryToken: String? = req.query["token"]
+        let groupIdStr: String? = req.query["groupId"]
         guard let token = queryToken else {
-            throw Abort(.notFound, reason: "illegal token")
+            throw Abort(.unauthorized, reason: "illegal token")
         }
 
         return User.query(on: req.db)
             .filter(\.$token, .equal, token).first()
             .unwrap(or: Abort(.notFound, reason: "illegal User"))
             .flatMap { (user) -> EventLoopFuture<[Group]> in
-                user.$groups.query(on: req.db).all()
+                var queryGroup = user.$groups.query(on: req.db)
+                if let groupIdStr = groupIdStr, let groupId = UUID(uuidString: groupIdStr) {
+                    queryGroup = queryGroup.filter(\.$id, .equal, groupId)
+                }
+                return queryGroup.all()
             }.flatMap { (groups) -> EventLoopFuture<[User]> in
                 var resp = [EventLoopFuture<[User]>]()
                 for group in groups {
@@ -47,28 +55,36 @@ struct LocationController {
                     return userlist
                 }
             }.flatMap { (users) -> EventLoopFuture<Response> in
-                var resp = [EventLoopFuture<[Location]>]()
+                var resp = [EventLoopFuture<Location>]()
+                var userIDs: [UUID] = []
                 for user in users {
-                    let locationq = user.$locations.query(on: req.db).all()
+                    guard let userID = user.id, !userIDs.contains(userID), user.token != token else {continue}
+                    userIDs.append(userID)
+                    let locationq = user.$locations.query(on: req.db).sort(\.$updatedAt, .descending).first()
+                        .unwrap(or: MBTError.init(errorCode: HTTPResponseStatus.notFound.code, message: "Location is nil"))
                     resp.append(locationq)
                 }
-                return resp.flatten(on: req.eventLoop).map { (locationsList) -> [Location] in
-                    var locationlist: [Location] = []
-                    for locations in locationsList {
-                        locationlist.append(contentsOf: locations)
-                    }
-                    return locationlist
-                }.map({ (locations) -> ([Location]) in
-                    var filtedLocation: [Location] = []
-                    for location in locations {
-                        if filtedLocation.contains(where: {$0.id == location.id}) {
-                            continue
-                        } else {
-                            filtedLocation.append(location)
-                        }
-                    }
-                    return filtedLocation
-                }).encodeResponse(status: .ok, for: req)
+                return resp.flatten(on: req.eventLoop).encodeResponse(status: .ok, for: req)
+        }
+    }
+
+    func upload(req: Request) throws -> EventLoopFuture<Response> {
+        let location = try req.content.decode(LocationRequest.self)
+        return User.query(on: req.db)
+            .filter(\.$token, .equal, location.token).first()
+            .unwrap(or: Abort(.unauthorized, reason: "illegal User"))
+            .flatMap { user in
+                if let userIdStr = location.userIDStr {
+                    return Location(latitude: location.latitude,
+                                    longitude: location.longitude,
+                                    userIDStr: userIdStr, userName: user.name).save(on: req.db)
+                        .transform(to: Response(status: .ok))
+                } else {
+                    return Location(latitude: location.latitude,
+                                    longitude: location.longitude,
+                                    userID: user.id!, userName: user.name).save(on: req.db)
+                        .transform(to: Response(status: .ok))
+                }
         }
     }
 }
@@ -77,5 +93,6 @@ extension LocationController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         routes.get("user", use: getUserLocation)
         routes.get("userGroup", use: getUserGroupLocation)
+        routes.post("user", use: upload)
     }
 }

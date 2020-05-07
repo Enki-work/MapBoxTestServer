@@ -30,6 +30,9 @@ final class User: Model, Content {
     
     @Field(key: "token")
     var token: String?
+    
+    @Field(key: "isAdmin")
+    var isAdmin: Bool
 
     @Timestamp(key: "createdAt", on: .create)
     var createdAt: Date?
@@ -47,12 +50,28 @@ final class User: Model, Content {
     
     init(mailAddress: String,
          passWord: String,
+         isAdmin: Bool = false,
          groupId: UUID? = nil) {
         self.mailAddress = mailAddress
         self.passWord = passWord
         //TODO:　仮name
         self.name = String(mailAddress.split(separator: "@").first ?? "")
+        self.token = ""
+        self.isAdmin = isAdmin
+    }
+    
+    func createToken() -> User {
         //TODO:仮token
-        self.token = mailAddress + passWord
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyyMMddHHmmss"
+        self.token = mailAddress + passWord + dateFormatter.string(from: Date())
+        return self
+    }
+    
+    func removeToken() -> User {
+        //TODO:仮token
+        self.token = ""
+        return self
     }
 }

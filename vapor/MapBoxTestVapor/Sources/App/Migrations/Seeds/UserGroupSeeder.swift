@@ -15,22 +15,15 @@ struct UserGroupSeeder: Migration {
             .flatMap { (arg0) -> EventLoopFuture<Void> in
                 let (users, groups) = arg0
                 var usergroups: [UserGroup] = []
-                for group in groups {
-                    switch usergroups.count {
-                    case 0:
-                        guard let userid = users[0].id, let groupid = group.id else { continue }
-                        usergroups.append(UserGroup(userID: userid, groupID: groupid))
-                    case 1:
-                        guard let userid = users[0].id, let groupid = group.id else { continue }
-                        usergroups.append(UserGroup(userID: userid, groupID: groupid))
-                    case 2:
-                        guard let userid = users[1].id, let groupid = group.id else { continue }
-                        usergroups.append(UserGroup(userID: userid, groupID: groupid))
-                    default:
-                        break
-
-                    }
-                }
+                usergroups.append(UserGroup(userID: users[0].id!, groupID: groups[0].id!))
+                usergroups.append(UserGroup(userID: users[1].id!, groupID: groups[0].id!))
+                usergroups.append(UserGroup(userID: users[2].id!, groupID: groups[0].id!))
+                usergroups.append(UserGroup(userID: users[3].id!, groupID: groups[0].id!))
+                usergroups.append(UserGroup(userID: users[4].id!, groupID: groups[0].id!))
+                usergroups.append(UserGroup(userID: users[1].id!, groupID: groups[1].id!))
+                usergroups.append(UserGroup(userID: users[2].id!, groupID: groups[1].id!))
+                usergroups.append(UserGroup(userID: users[3].id!, groupID: groups[1].id!))
+                usergroups.append(UserGroup(userID: users[1].id!, groupID: groups[2].id!))
                 return usergroups.map { $0.save(on: database) }.flatten(on: database.eventLoop)
         }
     }
